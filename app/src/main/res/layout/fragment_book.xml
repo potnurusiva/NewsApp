@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.android.booklist.MainActivity"
-    >
+    tools:context="com.example.android.booklist.MainActivity">
 
     <EditText
         android:id="@+id/enter_book_name"
@@ -13,7 +12,7 @@
         android:layout_marginLeft="16dp"
         android:layout_marginTop="8dp"
         android:ems="14"
-        android:hint="Enter Book Name" />
+        android:hint="@string/enter_book_name" />
 
     <Button
         android:id="@+id/seacrh_books"
@@ -35,6 +34,5 @@
         android:layout_below="@id/enter_book_name"
         android:layout_marginTop="8dp"
         android:drawSelectorOnTop="true"
-        android:orientation="vertical">
-    </ListView>
+        android:orientation="vertical"></ListView>
 </RelativeLayout>

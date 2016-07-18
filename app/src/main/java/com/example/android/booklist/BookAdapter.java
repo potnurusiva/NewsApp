@@ -1,7 +1,6 @@
 package com.example.android.booklist;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,10 +28,9 @@ public class BookAdapter extends ArrayAdapter<Book> {
 
         TextView bookNameTextView = (TextView) listItemView.findViewById(R.id.book_name);
         bookNameTextView.setText(currentBook.getBookName());
-        Log.v("Book adapter bookname", currentBook.getBookName());
+
         TextView bookAuthorTextView = (TextView) listItemView.findViewById(R.id.book_author);
         bookAuthorTextView.setText(currentBook.getBookAuthor());
-        Log.v("Book adapter bookauthor", currentBook.getBookAuthor());
 
         return listItemView;
     }

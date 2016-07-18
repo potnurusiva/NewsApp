@@ -56,27 +56,19 @@ public class BookFragment extends Fragment {
             public void onClick(View v) {
                 EditText bookNameText = (EditText) getActivity().findViewById(R.id.enter_book_name);
                 String FetchBookData = bookNameText.getText().toString();
-                Log.v("BookFragment", "FetchBookData :" + FetchBookData);
                 FetchBooksTask BooksTask = new FetchBooksTask();
                 ConnectivityManager connMgr = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
                 if (networkInfo != null && networkInfo.isConnected()) {
                     BooksTask.execute(FetchBookData);
-                    Log.v("setting up bookadapter", "books");
-                    /////adapter = new BookAdapter(getActivity(), books);
-                    Log.v("setting up screen", "books");
-                    /////ListView listView = (ListView) rootView.findViewById(R.id.list_books);
-                    /////listView.setAdapter(adapter);
-                    adapter.clear();//
-                    adapter.notifyDataSetChanged();//
+                    adapter.clear();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(),
-                            "No internet connection availbale", Toast.LENGTH_SHORT).show();
+                            getResources().getString(R.string.no_internet), Toast.LENGTH_SHORT).show();
                 }
             }
         });
-        Log.v("setting up bookadapter", "books");
         ListView listView = (ListView) rootView.findViewById(R.id.list_books);//
         listView.setAdapter(adapter);//
         return rootView;
@@ -87,48 +79,29 @@ public class BookFragment extends Fragment {
         private final String LOG_TAG = FetchBooksTask.class.getSimpleName();
 
         private ArrayList<Book> getBooksDataFromJson(String booksJsonStr) throws JSONException {
-            final String OWM_ITEMS = "items";
-            final String OWM_VOLUME_INFO = "volumeInfo";
-            final String OWM_TITLE = "title";
-            final String OWM_AUTHOR = "authors";
-            final String OWM_TOTAL_ITEMS = "totalItems";
-
+            final String OWM_ITEMS = getResources().getString(R.string.items);
+            final String OWM_VOLUME_INFO = getResources().getString(R.string.volumeInfo);
+            final String OWM_TITLE = getResources().getString(R.string.title);
+            final String OWM_AUTHOR = getResources().getString(R.string.authors);
+            final String OWM_TOTAL_ITEMS = getResources().getString(R.string.totalItems);
+            books = new ArrayList<>();
             JSONObject booksJson = new JSONObject(booksJsonStr);
 
             String totalItems = booksJson.optString(OWM_TOTAL_ITEMS);
-            Log.v("AyncTask total items", totalItems);
-            //String[] resultStrs = new String[booksArray.length()];
             int totalCount = Integer.parseInt(totalItems);
-            Log.v("AyncTask total count", String.valueOf(totalCount));
             if (totalCount == 0) {
-                Log.v("AsyncTask", "If condition");
-                books.clear();
-                books.add(totalCount, new Book("No books found", "Please enter valid book name"));
+                books.add(totalCount, new Book(getResources().getString(R.string.no_books),
+                                               getResources().getString(R.string.message)));
             } else {
-                Log.v("AsyncTask", "else condition");
                 JSONArray booksArray = booksJson.optJSONArray(OWM_ITEMS);
                 for (int i = 0; i < booksArray.length(); i++) {
-                    String bookAuthor = "Written By ";
+                    String bookAuthor = getResources().getString(R.string.written_by);
                     String bookName;
                     JSONObject bookDataObject = booksArray.getJSONObject(i);
                     JSONObject volumeInfo = bookDataObject.getJSONObject(OWM_VOLUME_INFO);
                     bookName = volumeInfo.optString(OWM_TITLE);
                     bookAuthor += String.valueOf(volumeInfo.optJSONArray(OWM_AUTHOR));
-                    /*JSONArray authorsArray = volumeInfo.optJSONArray(OWM_AUTHOR);
-                    int authorsArrayLenghth = authorsArray.length();
-                    for (int j = 0; j < authorsArrayLenghth; j++) {
-                        ///if (j == (authorsArray.length() - 1)) {
-                            //bookAuthor += authorsArray.getJSONObject(j).toString() + ". ";
-                            bookAuthor +=  authorsArray.getString(j) + ". ";
-                            ///Log.v("AuthorsArray if", bookAuthor);
-                        ///} else {
-                            //bookAuthor += authorsArray.getJSONObject(j).toString() + ", ";
-                            ///bookAuthor += authorsArray.getString(j) + ", ";
-                            ///Log.v("AuthorsArray else", bookAuthor);
-                        ///}
-                    }*/
                     books.add(i, new Book(bookName, bookAuthor));
-                    //resultStrs[i] = bookName + "\b" + bookAuthor;
                 }
             }
             return books;
@@ -139,26 +112,21 @@ public class BookFragment extends Fragment {
             if (params.length == 0) {
                 return null;
             }
-            Log.v("DoinBackground", params[0]);
-            Log.v("DoinBackground", "Siva");
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
             String booksJsonStr = null;
             int numBooks = 15;
 
             try {
-                final String FETCH_BOOKS_URL = "https://www.googleapis.com/books/v1/volumes?q=intitle:" + params[0];
-                //final String QUERY_PARAM = "q";
-                //final String TITLE_PARAM = "intitle";
-                final String APPID_PARAM = "APPID";
-                final String MAX_RESULTS_PARAM = "maxResults";
+                final String FETCH_BOOKS_URL = getResources().getString(R.string.url) + params[0];
+                final String APPID_PARAM = getResources().getString(R.string.appId);
+                final String MAX_RESULTS_PARAM = getResources().getString(R.string.maxResults);
 
                 Uri builtUri = Uri.parse(FETCH_BOOKS_URL).buildUpon()
-                        //.appendQueryParameter(QUERY_PARAM, params[0])
                         .appendQueryParameter(MAX_RESULTS_PARAM, String.valueOf(numBooks))
                         .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_GOOGLE_BOOKS_API_KEY)
                         .build();
-                URL url = new URL(builtUri.toString());
+                URL url = new URL(builtUri.toString().replace(" ", "%20"));
 
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -197,10 +165,8 @@ public class BookFragment extends Fragment {
                 }
             }
             try {
-                Log.v("getBooksDataFromJson2", booksJsonStr);
                 return getBooksDataFromJson(booksJsonStr);
             } catch (JSONException e) {
-                Log.v("Line 184", "JSONEception");
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
@@ -209,12 +175,7 @@ public class BookFragment extends Fragment {
 
         @Override
         protected void onPostExecute(ArrayList<Book> books) {
-            Log.v("onPostExecute2", books.get(0).toString());
             if (books != null) {
-                //adapter.clear();
-                for (int p = 0; p < books.size(); p++) {
-                    Log.v("postonexecute of books", books.get(p).toString());
-                }
                 adapter.addAll(books);
             }
         }

@@ -24,11 +24,4 @@ public class Book {
         return mBookAuthor;
     }
 
-    @Override
-    public String toString() {
-        return "Book{" +
-                "mBookName='" + mBookName + '\'' +
-                ", mBookAuthor='" + mBookAuthor + '\'' +
-                '}';
-    }
 }
